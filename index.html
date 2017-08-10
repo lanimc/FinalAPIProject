@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+	<title>Beer and Dessert</title>
+    <link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+
+
+    
+</head>
+    
+    
+<body>
+    <main>
+        <section class = "header"><h1>Beer and Dessert Pairings</h1></section>
+        <section class = "userParameters">
+    
+            <h2>Enter your key ingredient</h2>
+            <input id="inputBox" type="text">
+            <input id="submitSearch" type="submit" value="Submit">
+		
+        </section>
+    
+    
+        <section class = "searchResults">
+            
+            <div id = "draw" class="draw"></div>
+
+            <div class="beers"></div>
+            
+            <div class="food"></div>
+    
+        </section>
+    
+    
+    </main>
+
+   <script src="http://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="m crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="interaction.js"></script>
+    <script type="text/javascript">
+			$(document).ready(function(){
+				app.initialize();
+			});
+    </script>
+    
+</body>
+</html>
