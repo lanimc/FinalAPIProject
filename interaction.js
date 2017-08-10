@@ -78,21 +78,22 @@ var app = {
             .force("charge", d3.forceManyBody().strength(-2).distanceMax([60]))
             .force("center", d3.forceCenter(width / 2, height / 2));
     
+        simulation
+            .nodes(theBeers)
+            .on("tick", ticked);
+
+        var g = svg.selectAll("g")
+            .data(theBeers, function(d,i) { return i; })
+        
         
 
-        var g = svg.selectAll("g.node")
-            .data(theBeers, function(d,i) { return i; })
-        .call(d3.drag()
-                    .on("start", dragstarted)
-                    .on("drag", dragged)
-                    .on("end", dragended));
-        
-        simulation
-            .nodes(g.node)
-            .on("tick", ticked);
         
         var node = g.enter().append("svg:g")
             .attr("class", "nodes")
+            .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
             //.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
             
         
@@ -134,8 +135,6 @@ var app = {
             
             $('.food').html('');  app.parseBeerData(d.style.description);});
         
-        
-
       
         function dragstarted(d) {
             if (!d3.event.active) simulation.alphaTarget(0.6).restart();
@@ -156,9 +155,9 @@ var app = {
         
 
         function ticked() {
-        node
-            .attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; });
+        node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+            //.attr("cx", function(d) { return d.x; })
+            //.attr("cy", function(d) { return d.y; });
   }
         
     },
@@ -243,18 +242,16 @@ var app = {
                     console.error(xhr.responseText);
             },
 			
-                
-                
+
             success: function(data){
             console.log("Got the desserts:\n", data.matches);
             var htmlString = "<h3>No related desserts found</h3>"
                 if(data.matches == null) { $('.food').append(htmlString);}
-                else{
+                else {
                 htmlString = "<h3>" + data.matches.length+ " related desserts found</h3>"
                 $('.food').append(htmlString)
                
                 //add the circles 
-                
                 app.drawFoodData(data.matches);
                 
                 };
