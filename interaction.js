@@ -75,7 +75,7 @@ var app = {
         var svg = d3.select(".draw").append("svg").attr("width",width).attr("height",height);
         
         var simulation = d3.forceSimulation()
-            .force("charge", d3.forceManyBody().strength(-2).distanceMax([60]))
+            .force("charge", d3.forceManyBody().strength(-4).distanceMax([70]))
             .force("center", d3.forceCenter(width / 2, height / 2));
     
         simulation
@@ -85,8 +85,7 @@ var app = {
         var g = svg.selectAll("g")
             .data(theBeers, function(d,i) { return i; })
         
-        
-
+    
         
         var node = g.enter().append("svg:g")
             .attr("class", "nodes")
@@ -94,18 +93,17 @@ var app = {
                     .on("start", dragstarted)
                     .on("drag", dragged)
                     .on("end", dragended));
-            //.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
             
         
         
         // Append a circle
-        node.append("svg:circle")
-            .attr("r", 15 );
+        //node.append("svg:circle")
+           // .attr("r", function(d) { return Math.sqrt(d.size) / 10 || 4.5; });
         
         node.append("image")
             .attr("xlink:href",  function(d) { var cimage; if(d.labels && d.labels.icon){cimage = d.labels.icon} else{ cimage = label}; return cimage})
-            .attr("height", 30)
-            .attr("width", 30);
+            .attr("height", 35)
+            .attr("width", 35);
         
         node.append("clipPath")
             .attr("id", function(d,i) { return "clip-" + d.name+i; })
@@ -156,8 +154,7 @@ var app = {
 
         function ticked() {
         node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-            //.attr("cx", function(d) { return d.x; })
-            //.attr("cy", function(d) { return d.y; });
+         
   }
         
     },
@@ -273,18 +270,20 @@ var app = {
             .duration(750)
             .ease(d3.easeLinear);
 
-
-                    
+           var color = d3.scaleSequential()
+            .domain([0, 100])
+            .interpolator(d3.interpolateRainbow);    
+        
         d3.select(".sel").transition(t).attr("cx",width-30)
         
         
         d3.select("svg").selectAll("rect").data(theDesserts).enter().append("rect")
-            .attr("width",10).attr("height", 15).attr("x",width-15+"px").attr("y",function(d,i){i*15+"px";})
+            .attr("width",20).attr("height", 20).attr("x", width-200).attr("y",function(d,i){return i*30;}).attr("fill",function(d,i) {console.log(color(i));return color(i);})
             
             .on("click",function() {  //check if values in json return
         if (theDesserts.attributes && theDesserts.attributes.course){
         course = theDesserts[i].attributes.course
-        }  
+        } ; 
                         
         if(theDesserts.recipeName){
         foodname = theDesserts.recipeName};
@@ -292,10 +291,11 @@ var app = {
         if (theDesserts.smallImageUrls){
         fimage = theDesserts.smallImageUrls[0]};
       
-        d3.select(".sel").attr("r","80");});
+        $('.food').html(foodname);
                     
-    }
+    })
        
 
+}
 }
     
