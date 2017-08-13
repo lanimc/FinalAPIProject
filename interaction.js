@@ -79,8 +79,8 @@ var app = {
                 
                 
         //set up d3 visualization
-        var width = $(window).width();
-        var height = 350;
+        var width = $('.draw').width()-10;
+        var height = $('.draw').height()-10;
         
         var svg = d3.select(".draw").append("svg").attr("width",width).attr("height",height);
         
@@ -301,7 +301,7 @@ var app = {
         console.log('Food data:\n',theDesserts);
 
         var width = $('.food').width();
-        var height = $('.food').height();
+        var height = 250;
         
         var t = d3.transition()
             .duration(750)
@@ -311,16 +311,17 @@ var app = {
             .domain([0, 100])
             .interpolator(d3.interpolateRainbow);    
         
-        d3.select("g .sel").transition(t).attr("x",100);
+        d3.select("g .sel").transition(t).attr("dx",100);
         
-            var svg = d3.select(".food").append("svg"),
-            diameter = width/2,
+            var svg = d3.select(".food").append("svg").attr("width",width).attr("height",height),
+            diameter = width/2.5,
             g = svg.append("g").attr("transform", "translate(2,2)")
             
 
             var pack = d3.pack()
-                .size([diameter - 4, diameter - 4]);
-
+                .size([diameter - 4, diameter-4]);
+        
+        //set layout. size according to dessert rating
         root = d3.hierarchy(packData)
             .sum(function(d) { return d.rating; })
             .sort(function(a, b) { return b.value - a.value; });
@@ -333,19 +334,29 @@ var app = {
 
         dnode.append("title")
             .text(function(d) { return d.data.name ; });
-
+        
+        dnode.append("svg:image")
+            .attr("xlink:href",  function(d) {return d.image;})
+            .attr("height", 40)
+            .attr("width", 40)
+            .attr("x", function(d) { return -25;})
+            .attr("y", function(d) { return -25;});
+        
         dnode.append("circle")
             .attr("r", function(d) { return d.r; });
-        dnode.append("img").attr("xlink:href", function(d){"url("+d.image+")";});
         
-                
-              dnode.on("click",  function(d){ console.log(d);
+        
+        //on click, add the dessert info  
+        dnode.on("click",  function(d){ console.log(d);
                   $('.food h4').empty();
                   $('.food h5').empty();
                   $('.food p').empty();
-                  return $('.food').append("<h4>"+d.data.name+"</h4><h5>Flavors: "+_.pairs(d.data.flavors)+"</h5><p>Ingredients: "+d.data.ingredients+"<br>Rating: "+d.data.rating+"</p>")} ) ;
+                  return $('.food').append("<h4>"+d.data.name.toUpperCase()+"</h4><h5>Flavors: "+_.pairs(d.data.flavors)+"</h5><p>Ingredients: "+d.data.ingredients+"<br>Rating: "+d.data.rating+"</p>")} ) ;
        
-       
+        //append text to just the children
+       dnode.filter(function(d) { return !d.children; }).append("text")
+      .attr("dy", ".3em")
+      .text(function(d) { return d.data.name.substring(0, d.r / 3); });
 
 
 }}
