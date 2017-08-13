@@ -1,9 +1,6 @@
-#Beer and Dessert Pairings
+# Beer and Dessert Pairings
 
-
-
-# FINALProjects
-<h2>Project Requirements</h2>:
+<h2>Project Requirements</h2>
 Create a single page (client-side only) web experience that ideally leverages data from at least one public web API and incorporates the use of at least one Javascript “interaction” library, such as p5, D3, Three, etc.
 
 APIs:
