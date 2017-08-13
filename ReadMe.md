@@ -11,8 +11,6 @@ APIs:
 
 <li>Text Razor<li></ul>
 
-
-
 ![Beer & Dessert Pairings](https://github.com/lanimc/FinalAPIProject/blob/master/screenshot.png)
 
 <h2>User Experience</h2><br>
