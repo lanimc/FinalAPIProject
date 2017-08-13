@@ -18,18 +18,31 @@ main {
     text-shadow: 2px 2px 4px #777;
     height: 100px;
     background: #efefef; 
-    
+    width:50%;
+    float: left;
 }
+
 
 h1{
     position: relative;
     color: #4D557F;
 }
 
+h2,h3,h4,h5 {
+    color: #4D557F;
+}
+
+p{
+    color: #777;
+}
+
+
 .userParameters {
 
     padding: 10px ;
     background: #efefef; 
+    width: 50%
+    float:right;
 
     
 }
@@ -64,10 +77,10 @@ svg:image {
     
 }
 .dnode {
-  fill: rgb(31, 119, 180);
+  fill: #efefef;
   fill-opacity: .25;
-  stroke: rgb(31, 119, 180);
-  stroke-width: 1px;
+  stroke: #efefef;
+  stroke-width: .5px;
 }
 
 .dnode sel {
@@ -85,7 +98,9 @@ g:hover {
     background-color: crimson;
 }
 
-
+.destext {
+    font-size: .5em;
+}
 
 #inputBox {
     color: crimson;
@@ -93,16 +108,28 @@ g:hover {
 
 .beers {
     width: 48%;
-    padding: 10px 5px;
+    min-height: 100px;
+    padding: 15px 10px;
     float: left;
     font-size: .8em;
+    background:#ADCCB9;
+    box-shadow: -2px 2px 4px #777;
 }
 
+.leaf {
+    fill: rgb(216, 255, 232);
+  fill-opacity: .25;
+  stroke: #777;
+  stroke-width: .5px;
+}
 .food {
     width: 48%;
-    padding: 10px 5px;
+    min-height: 100px;
+    padding: 15px 10px;
     float: right;
     font-size: .8em;
+    background:#ADCCB9;
+    box-shadow: 2px 2px 4px #777;
 }
 
 

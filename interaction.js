@@ -3,8 +3,11 @@ var app = {
 		app.getSearchTerm();
         
 	},
-
+    
+    //function to get the user entered term from the searchbox
     getSearchTerm: function() {
+        
+        //when the search button is clicked run these commands
         $('#submitSearch').click(function(){
         
             //Clear any previous search results 
@@ -14,18 +17,18 @@ var app = {
 
             //Get the input box value
             var userTerm = $('#inputBox').val();
-            console.log('beer term:\n',userTerm);
 
-            //run the api call with the beerTerm
+            //run the beer api call with the users keyword
             app.getBeerData(userTerm);
         })
         
     },
     
-    //api call to beer api
+    //call to beer api
     getBeerData: function(Term) {
 		console.log("Beers API Call");
-
+        
+        //return only beers with ingredients. search all areas for users keyword
 		var BeerURL = "http://api.brewerydb.com/v2/search?key=";
 		var myBeerAPIKey = "adc1e562bb00337ee44e0dcf23cfefcc";
         var SearchParam = "&q="+Term+"&type=beer&withIngredients=Y"
@@ -36,18 +39,23 @@ var app = {
 			type: 'GET',
 			dataType: 'json',
 			
+            //if there's an error, log it to the console and put a message in the beer results section
             error: function(err){
 				console.log(err);
+                var htmlString = "<h3>There was an error searching for " + Term + " beers. Try another keyword search.</h3>"
+                $('.beers').append(htmlString)
 			},
-			
+			//if we get results, put a message in the beer results section and call the draw beer results function
             success: function(data){
-                var htmlString = "<h3>No " + Term + " beers found</h3>"
+                
+                //set the success message
+                var htmlString = "<h3>No '" + Term + "' beers found</h3>"
                 if(data.data == null) { $('.beers').append(htmlString);}
                 else{
-                htmlString = "<h3>" + data.data.length+ " " +Term + " beers found</h3>"
+                htmlString = "<h3>" + data.data.length+ " '" +Term + "' beers found</h3>"
                 $('.beers').append(htmlString)
                 
-                //add the circles 
+                //call the function to draw the beer results 
                 app.drawBeerData(data.data);
                 
                 }
@@ -57,14 +65,16 @@ var app = {
             
 		});
 	},
+    
+    //function to draw beer results using force layout in d3
     drawBeerData: function(theBeers){
-        console.log("Draw Beer Data:\n",theBeers);    
+        console.log("Draw Beer Data", theBeers);    
         
         //set default values 
-        var beername = "Not Available";
-        var beerstyledesc = "Not Available"
-        var beerstylename = "Not Available";
-        var beerdesc = "Not Available";
+        var beername = "No beer name available";
+        var beerstyledesc = "No style description available"
+        var beerstylename = "No style name available";
+        var beerdesc = "No beer description available";
         var label = "beercloseupc.png";
                 
                 
@@ -74,14 +84,7 @@ var app = {
         
         var svg = d3.select(".draw").append("svg").attr("width",width).attr("height",height);
         
-
-
-        var defs = svg.insert("svg:defs")
-            .data(["end"]);
-        
-        defs.enter().append("svg:path")
-            .attr("d","M0,-5L10,0L0,5");
-        
+        //set up the animation of the results
         var simulation = d3.forceSimulation()
             .force("charge", d3.forceManyBody().strength(-4).distanceMax([70]))
             .force("center", d3.forceCenter(width / 2, height / 2));
@@ -90,12 +93,9 @@ var app = {
             .nodes(theBeers)
             .on("tick", ticked);
         
-        
-        
+        //set up the images displayed: for each beer result, create a group, add image and title to it
         var g = svg.selectAll("g")
             .data(theBeers, function(d,i) { return i; })
-        
-    
         
         var node = g.enter().append("svg:g")
             .attr("class", "nodes")
@@ -103,11 +103,6 @@ var app = {
                     .on("start", dragstarted)
                     .on("drag", dragged)
                     .on("end", dragended));
-            
-        
-        
-        // Append to the group
-        
         
         node.append("svg:image")
             .attr("xlink:href",  function(d) { var cimage; if(d.labels && d.labels.icon){cimage = d.labels.icon} else{ cimage = label}; return cimage})
@@ -116,28 +111,44 @@ var app = {
             .attr("x", function(d) { return -25;})
             .attr("y", function(d) { return -25;});
         
-        
         node.append("title")
             .text(function(d) { return d.name ;});
         
-        node.on("click", function(d,i) {d3.selectAll(".dnode").remove(); d3.selectAll(".nodes").attr("class","nodes"); d3.select( this ).attr("class","nodes sel");
-            if(d.name){beername = d.name.toUpperCase()};
-                                        if(d.description){beerdesc = d.description}; 
-                                        if(d.style && d.style.name) {beerstylename = d.style.name.toUpperCase()};
-                                        if(d.stlye && d.style.description){beerstyledesc=d.style.description};
-                                        if(d.labels && d.labels.icon){label = d.labels.icon};
-                            d3.selectAll('.draw text').remove();$('.searchResults h1').html(''); $('.searchResults h2').html(''); $('.searchResults p').html('');
-                            //$(".searchResults h1").html(beername);
-                            $(".beers h2").html(beerstylename);
-                            $(".beers p").html(d.description + "<br>" + d.style.description);
-                            d3.select(".draw svg").append("text").text(beername).attr("transform","translate(0,20)");
+        //set up the user interaction with the beers: on click show title and description information; on doubleclick call the function to get desserts
+        node.on("click", function(d,i) //clear previous actions and reset the classes
+                {d3.selectAll(".dnode").remove(); 
+                d3.selectAll('.draw text').remove();
+                d3.selectAll(".nodes").attr("class","nodes"); 
+                
+                $('.beers h4').empty();
+                $('.beers h5').empty();
+                $('.beers p').empty();
+
+                //change from defaults for nonmissing values
+                if(d.name){beername = d.name.toUpperCase()};
+                if(d.description){beerdesc = d.description}; 
+                if(d.style && d.style.name) {beerstylename = d.style.name.toUpperCase()};
+                if(d.style && d.style.description){beerstyledesc = d.style.description};
+                if(d.labels && d.labels.icon){label = d.labels.icon};
+                
+                var htmlString = "<h4>"+beername+"</h4><h5>"+beerstylename+"</h5><p>"+beerdesc+"<br>"+beerstyledesc+"</p>"
+                
+                $('.beers').append( htmlString );
+                 
+                d3.select(".draw svg").append("text").text(beername).attr("transform","translate(0,20)");
+                d3.select( this ).attr("class","nodes sel");
                                                     });
-        
-                                    
+                                
         node.on("dblclick",function(d) { 
-            $('.food').html('');  d3.selectAll(".dnode").remove(); d3.selectAll(".node").attr("class","node");  d3.select(this).attr("class", "node sel");  app.parseBeerData(d.style.description);});
+            $('.food').html('');  
+            d3.selectAll(".dnode").remove(); 
+            d3.selectAll(".node").attr("class","node");  
+            d3.select(this).attr("class", "node sel");  
+            
+            app.parseBeerData(beerdesc+beerstyledesc);});
         
-      
+        
+        //helper functions
         function dragstarted(d) {
             if (!d3.event.active) simulation.alphaTarget(0.6).restart();
             d.fx = d.x;
@@ -155,7 +166,6 @@ var app = {
             d.fy = null;
         }
         
-
         function ticked() {
         node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
          
@@ -218,7 +228,7 @@ var app = {
         
     },
     
-    
+    //function to call the food api
     getFoodData: function(BeerTerms) {
 		console.log("Food API call");
         
@@ -244,6 +254,7 @@ var app = {
 			
 
             success: function(data){
+                //set the defaults
                 var name="Not Available";
                 var image="fooddefault.jpg";
                 var flavors="Not Available";
@@ -289,8 +300,8 @@ var app = {
     drawFoodData: function(theDesserts,packData) {
         console.log('Food data:\n',theDesserts);
 
-        var width = $(window).width();
-        var height = 350;
+        var width = $('.food').width();
+        var height = $('.food').height();
         
         var t = d3.transition()
             .duration(750)
@@ -302,10 +313,10 @@ var app = {
         
         d3.select("g .sel").transition(t).attr("x",100);
         
-            var svg = d3.select("svg"),
-            diameter = +svg.attr("width")/4,
-            g = svg.append("g").attr("transform", "translate(2,2)"),
-            format = d3.format(",d");
+            var svg = d3.select(".food").append("svg"),
+            diameter = width/2,
+            g = svg.append("g").attr("transform", "translate(2,2)")
+            
 
             var pack = d3.pack()
                 .size([diameter - 4, diameter - 4]);
@@ -321,14 +332,18 @@ var app = {
             .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
         dnode.append("title")
-            .text(function(d) { return d.data.name + "\n" + format(d.value); });
+            .text(function(d) { return d.data.name ; });
 
         dnode.append("circle")
             .attr("r", function(d) { return d.r; });
-
-        dnode.filter(function(d) { return !d.children; }).append("text")
-            .attr("dy", "0.3em")
-            .text(function(d) { return d.data.name.substring(0, d.r / 3); });
+        dnode.append("img").attr("xlink:href", function(d){"url("+d.image+")";});
+        
+                
+              dnode.on("click",  function(d){ console.log(d);
+                  $('.food h4').empty();
+                  $('.food h5').empty();
+                  $('.food p').empty();
+                  return $('.food').append("<h4>"+d.data.name+"</h4><h5>Flavors: "+_.pairs(d.data.flavors)+"</h5><p>Ingredients: "+d.data.ingredients+"<br>Rating: "+d.data.rating+"</p>")} ) ;
        
        
 
