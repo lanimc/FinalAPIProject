@@ -65,7 +65,7 @@ var app = {
         var beerstyledesc = "Not Available"
         var beerstylename = "Not Available";
         var beerdesc = "Not Available";
-        var label = "beercloseup.jpg";
+        var label = "beercloseupc.png";
                 
                 
         //set up d3 visualization
@@ -74,6 +74,14 @@ var app = {
         
         var svg = d3.select(".draw").append("svg").attr("width",width).attr("height",height);
         
+
+
+        var defs = svg.insert("svg:defs")
+            .data(["end"]);
+        
+        defs.enter().append("svg:path")
+            .attr("d","M0,-5L10,0L0,5");
+        
         var simulation = d3.forceSimulation()
             .force("charge", d3.forceManyBody().strength(-4).distanceMax([70]))
             .force("center", d3.forceCenter(width / 2, height / 2));
@@ -81,7 +89,9 @@ var app = {
         simulation
             .nodes(theBeers)
             .on("tick", ticked);
-
+        
+        
+        
         var g = svg.selectAll("g")
             .data(theBeers, function(d,i) { return i; })
         
@@ -96,42 +106,36 @@ var app = {
             
         
         
-        // Append a circle
-        //node.append("svg:circle")
-           // .attr("r", function(d) { return Math.sqrt(d.size) / 10 || 4.5; });
+        // Append to the group
         
-        node.append("image")
+        
+        node.append("svg:image")
             .attr("xlink:href",  function(d) { var cimage; if(d.labels && d.labels.icon){cimage = d.labels.icon} else{ cimage = label}; return cimage})
-            .attr("height", 35)
-            .attr("width", 35);
+            .attr("height", 40)
+            .attr("width", 40)
+            .attr("x", function(d) { return -25;})
+            .attr("y", function(d) { return -25;});
         
-        node.append("clipPath")
-            .attr("id", function(d,i) { return "clip-" + d.name+i; })
-            .append("use")
-            .attr("xlink:href", function(d) { return "#" + d.name; });
         
         node.append("title")
             .text(function(d) { return d.name ;});
         
-        node.on("click", function(d,i) {d3.select( this ).attr("class","node sel");
+        node.on("click", function(d,i) {d3.selectAll(".dnode").remove(); d3.selectAll(".nodes").attr("class","nodes"); d3.select( this ).attr("class","nodes sel");
             if(d.name){beername = d.name.toUpperCase()};
                                         if(d.description){beerdesc = d.description}; 
-                                        if(d.style && d.style.name) {beerstylename = d.style.name.toUpperCase()}
+                                        if(d.style && d.style.name) {beerstylename = d.style.name.toUpperCase()};
                                         if(d.stlye && d.style.description){beerstyledesc=d.style.description};
-                                        if(d.labels && d.labels.icon){label = d.labels.icon}
-                            $('.draw svg text').html('');$('.searchResults h1').html(''); $('.searchResults h2').html(''); $('.searchResults p').html('');
+                                        if(d.labels && d.labels.icon){label = d.labels.icon};
+                            d3.selectAll('.draw text').remove();$('.searchResults h1').html(''); $('.searchResults h2').html(''); $('.searchResults p').html('');
                             //$(".searchResults h1").html(beername);
                             $(".beers h2").html(beerstylename);
                             $(".beers p").html(d.description + "<br>" + d.style.description);
                             d3.select(".draw svg").append("text").text(beername).attr("transform","translate(0,20)");
                                                     });
         
-        
-        
                                     
         node.on("dblclick",function(d) { 
-            
-            $('.food').html('');  app.parseBeerData(d.style.description);});
+            $('.food').html('');  d3.selectAll(".dnode").remove(); d3.selectAll(".node").attr("class","node");  d3.select(this).attr("class", "node sel");  app.parseBeerData(d.style.description);});
         
       
         function dragstarted(d) {
@@ -159,7 +163,7 @@ var app = {
         
     },
     parseBeerData: function(Desc) {
-            console.log("ParseBeerData:\n", Desc);
+            console.log("ParseBeerData");
             var beerdata = Desc;
         
         
@@ -186,14 +190,13 @@ var app = {
                     
                     var foodresponse = fooddata.response;
                     var beerTerms = [];
-                    var minconf = _.min(_.pluck(foodresponse.entities,"confidenceScore"));console.log(minconf);
-                    var maxconf = _.max(_.pluck(foodresponse.entities,"confidenceScore"));console.log(maxconf);
-                    var minrela = _.min(_.pluck(foodresponse.entities,"relevanceScore"));console.log(minrela);
-                    var maxrela = _.max(_.pluck(foodresponse.entities,"relevanceScore"));console.log(maxrela);
+                    var minconf = _.min(_.pluck(foodresponse.entities,"confidenceScore"));
+                    var maxconf = _.max(_.pluck(foodresponse.entities,"confidenceScore"));
+                    var minrela = _.min(_.pluck(foodresponse.entities,"relevanceScore"));
+                    var maxrela = _.max(_.pluck(foodresponse.entities,"relevanceScore"));
                     for (var i=0; i<foodresponse.entities.length; i++){
                         if (foodresponse.entities){
                             if(foodresponse.entities[i].confidenceScore && foodresponse.entities[i].confidenceScore >=minconf+((maxconf-minconf)/2) && foodresponse.entities[i].relevanceScore && foodresponse.entities[i].relevanceScore > minrela+((maxrela-minrela)/2) ){
-                                
                                 beerTerms.push(foodresponse.entities[i].matchedText.toLowerCase());
                                 
                             }
@@ -241,28 +244,51 @@ var app = {
 			
 
             success: function(data){
+                var name="Not Available";
+                var image="fooddefault.jpg";
+                var flavors="Not Available";
+                var ingredients = "Not Available";
+                var rating = 0;
+                
+                
+                
             console.log("Got the desserts:\n", data.matches);
             var htmlString = "<h3>No related desserts found</h3>"
                 if(data.matches == null) { $('.food').append(htmlString);}
                 else {
-                htmlString = "<h3>" + data.matches.length+ " related desserts found</h3>"
-                $('.food').append(htmlString)
-               
+                    htmlString = "<h3>" + data.matches.length+ " related desserts found</h3>"
+                    $('.food').append(htmlString);
+                    var flare=[], hdata, leaves=[];
+                    
+                //build the dataset for pack layout
+                  for(var i=0; i < data.matches.length; i++){
+                          if(data.matches[i].recipeName){name = data.matches[i].recipeName}
+                          if(data.matches[i].smallImageUrls){image = data.matches[i].smallImageUrls[0]}
+                          if(data.matches[i].flavors){flavors=data.matches[i].flavors}
+                          if(data.matches[i].ingredients){ingredients=data.matches[i].ingredients}
+                        if(data.matches[i].rating){rating=data.matches[i].rating}
+
+                      leaves.push({'name':name, 'image':image, 'flavors':flavors, 'ingredients':ingredients, 'rating': rating});
+                    };
+                    
+ 
+                    hdata={"name":$("#inputBox").val(),"children":[{"name":$(".sel title")[0].innerHTML,"children":[{"name": "desserts","children":leaves}]}]};
+                                        
+                    console.log("hierarchy:\n",hdata);
+                    console.log("title:\n",$(".sel title")[0].innerHTML);
+    
+
+                    
                 //add the circles 
-                app.drawFoodData(data.matches);
-                
-                };
+                app.drawFoodData(data.matches, hdata);
+                   
             }
-        });
+        }});
     },
     
-    drawFoodData: function(theDesserts) {
+    drawFoodData: function(theDesserts,packData) {
         console.log('Food data:\n',theDesserts);
-        //set default values for table entry
-        var foodname = "Not Available"; 
-        var foodcourse = "Not Available";
-        var fimage = "fooddefault.jpg";
-        var course = "Not Available";
+
         var width = $(window).width();
         var height = 350;
         
@@ -274,28 +300,38 @@ var app = {
             .domain([0, 100])
             .interpolator(d3.interpolateRainbow);    
         
-        d3.select(".sel").transition(t).attr("cx",width-30)
+        d3.select("g .sel").transition(t).attr("x",100);
         
-        
-        d3.select("svg").selectAll("rect").data(theDesserts).enter().append("rect")
-            .attr("width",20).attr("height", 20).attr("x", width-200).attr("y",function(d,i){return i*30;}).attr("fill",function(d,i) {console.log(color(i));return color(i);})
-            
-            .on("click",function() {  //check if values in json return
-        if (theDesserts.attributes && theDesserts.attributes.course){
-        course = theDesserts[i].attributes.course
-        } ; 
-                        
-        if(theDesserts.recipeName){
-        foodname = theDesserts.recipeName};
-                        
-        if (theDesserts.smallImageUrls){
-        fimage = theDesserts.smallImageUrls[0]};
-      
-        $('.food').html(foodname);
-                    
-    })
+            var svg = d3.select("svg"),
+            diameter = +svg.attr("width")/4,
+            g = svg.append("g").attr("transform", "translate(2,2)"),
+            format = d3.format(",d");
+
+            var pack = d3.pack()
+                .size([diameter - 4, diameter - 4]);
+
+        root = d3.hierarchy(packData)
+            .sum(function(d) { return d.rating; })
+            .sort(function(a, b) { return b.value - a.value; });
+
+        var dnode = g.selectAll(".dnode")
+            .data(pack(root).descendants())
+            .enter().append("g")
+            .attr("class", function(d) { return d.children ? "dnode" : "leaf dnode"; })
+            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+        dnode.append("title")
+            .text(function(d) { return d.data.name + "\n" + format(d.value); });
+
+        dnode.append("circle")
+            .attr("r", function(d) { return d.r; });
+
+        dnode.filter(function(d) { return !d.children; }).append("text")
+            .attr("dy", "0.3em")
+            .text(function(d) { return d.data.name.substring(0, d.r / 3); });
+       
        
 
-}
-}
+
+}}
     

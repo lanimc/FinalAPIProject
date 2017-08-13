@@ -4,7 +4,8 @@ body {
 main {
     overflow-x:auto;
     margin: 0 auto;
-    width: 95%
+    width: 95%;
+    /*background: url("beerbackground.png");*/
 }
 
 .blabel {
@@ -48,11 +49,10 @@ h1{
 
 img {
     border-radius: 50%;
-    border-radius: 8px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
-image {
+svg:image {
     border-radius: 50%;
     border-radius: 8px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -63,30 +63,29 @@ image {
     height: 350px;
     
 }
-.node {
+.dnode {
   fill: rgb(31, 119, 180);
   fill-opacity: .25;
   stroke: rgb(31, 119, 180);
   stroke-width: 1px;
 }
-.node sel {
+
+.dnode sel {
     fill: crimson;
 }
 
 
-.g:hover {
+g:hover {
     fill: crimson;
     background-color: crimson;
 }
 
-.node:hover {
+.dnodes:hover {
     fill: crimson;
+    background-color: crimson;
 }
 
-rect{
-    fill: rgb(31, 119, 180);
-  fill-opacity: .25;
-}
+
 
 #inputBox {
     color: crimson;
